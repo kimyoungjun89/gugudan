@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>구구단 퀴즈</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        #problem {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        #inputField {
+            font-size: 24px;
+            width: 100px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            justify-content: center;
+            margin: auto;
+            max-width: 200px;
+        }
+
+        .number {
+            padding: 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .number:hover {
+            background-color: #0056b3;
+        }
+
+        button {
+            padding: 15px 30px; /* 버튼의 크기 증가 */
+            font-size: 20px; /* 글자 크기 증가 */
+            background-color: #28a745; /* 버튼 색상 */
+            color: white; /* 글자 색상 */
+            border: none; /* 테두리 없음 */
+            border-radius: 5px; /* 모서리 둥글게 */
+            cursor: pointer; /* 커서 모양 변경 */
+            margin-top: 20px; /* 버튼과 입력 필드 사이의 간격 */
+            transition: background-color 0.3s; /* 배경색 변화 효과 */
+        }
+
+        button:hover {
+            background-color: #218838; /* 버튼 호버 시 색상 변화 */
+        }
+
+        #fullscreenImage {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #fullscreenImage img {
+            max-width: 90%;
+            max-height: 90%;
+        }
+    </style>
+</head>
+<body>
+    <h1>구구단 퀴즈</h1>
+    <h2>연속으로 3번 문제를 맞쳐줘</h2>
+    <div id="problem"></div>
+    <input type="text" id="inputField" readonly />
+    <div class="number-pad">
+        <div class="number" onclick="addNumber('1')">1</div>
+        <div class="number" onclick="addNumber('2')">2</div>
+        <div class="number" onclick="addNumber('3')">3</div>
+        <div class="number" onclick="addNumber('4')">4</div>
+        <div class="number" onclick="addNumber('5')">5</div>
+        <div class="number" onclick="addNumber('6')">6</div>
+        <div class="number" onclick="addNumber('7')">7</div>
+        <div class="number" onclick="addNumber('8')">8</div>
+        <div class="number" onclick="addNumber('9')">9</div>
+        <div class="number" onclick="addNumber('0')" style="grid-column: span 3;">0</div> <!-- 0은 3열 차지 -->
+    </div>
+    <button onclick="checkAnswer()">확인</button>
+
+    <div id="fullscreenImage">
+        <img src="https://example.com/your-image.jpg" alt="Congratulations!" />
+    </div>
+
+    <script>
+        let answer = ''; // 사용자가 입력한 숫자 저장
+        const problems = [
+            { question: '3 x 2', answer: 6 },
+            { question: '4 x 5', answer: 20 },
+            { question: '7 x 3', answer: 21 },
+            { question: '5 x 6', answer: 30 },
+            { question: '9 x 1', answer: 9 },
+            { question: '2 x 8', answer: 16 },
+            { question: '1 x 7', answer: 7 },
+            { question: '6 x 4', answer: 24 },
+            { question: '8 x 3', answer: 24 },
+            { question: '2 x 9', answer: 18 },
+            { question: '6 x 6', answer: 36 },
+            { question: '7 x 8', answer: 56 },
+            { question: '9 x 6', answer: 54 },
+            { question: '8 x 7', answer: 56 },
+            { question: '5 x 9', answer: 45 },
+            { question: '4 x 6', answer: 24 },
+            { question: '6 x 3', answer: 18 },
+            { question: '7 x 4', answer: 28 },
+            { question: '8 x 5', answer: 40 },
+            { question: '9 x 7', answer: 63 },
+            { question: '2 x 6', answer: 12 },
+            { question: '3 x 7', answer: 21 },
+            { question: '4 x 8', answer: 32 },
+            { question: '5 x 7', answer: 35 },
+            { question: '9 x 5', answer: 45 },
+            { question: '6 x 2', answer: 12 },
+            { question: '7 x 5', answer: 35 },
+            { question: '8 x 6', answer: 48 },
+            { question: '9 x 3', answer: 27 },
+            { question: '6 x 9', answer: 54 },
+            { question: '8 x 4', answer: 32 },
+            { question: '3 x 9', answer: 27 },
+            { question: '2 x 5', answer: 10 },
+            { question: '7 x 6', answer: 42 },
+            { question: '9 x 8', answer: 72 },
+            { question: '4 x 9', answer: 36 },
+            { question: '5 x 8', answer: 40 },
+        ];
+
+        let currentProblemIndex = 0; // 현재 문제 인덱스
+        let correctAnswersCount = 0; // 맞춘 정답 수
+        let selectedProblems = []; // 선택된 문제 배열
+
+        function getRandomProblems(num) {
+            const shuffled = problems.sort(() => 0.5 - Math.random()); // 문제 배열 섞기
+            return shuffled.slice(0, num); // 앞에서 num개의 문제 반환
+        }
+
+        function loadProblem() {
+            const problemElement = document.getElementById('problem');
+            const currentProblem = selectedProblems[currentProblemIndex];
+            problemElement.textContent = currentProblem.question; // 문제 텍스트 표시
+        }
+
+        function addNumber(num) {
+            answer += num; // 숫자 추가
+            document.getElementById('inputField').value = answer; // 입력 필드 업데이트
+        }
+
+        function checkAnswer() {
+            const currentProblem = selectedProblems[currentProblemIndex];
+            if (parseInt(answer) === currentProblem.answer) {
+                correctAnswersCount++; // 정답 카운트 증가
+                alert('정답입니다!'); // 정답 알림
+            } else {
+                alert('틀렸습니다. 다시 시도하세요.'); // 틀린 알림
+            }
+
+            answer = ''; // 입력 초기화
+            document.getElementById('inputField').value = answer; // 입력 필드 초기화
+
+            // 문제 인덱스 증가
+            currentProblemIndex++;
+
+            // 문제 인덱스가 유효한지 체크
+            if (currentProblemIndex < selectedProblems.length) {
+                loadProblem(); // 다음 문제 로드
+            } else {
+                // 총 맞춘 정답 수가 3개 이상인지 체크
+                if (correctAnswersCount >= 3) {
+                    showImage(); // 이미지 표시
+                } else {
+                    // 새로운 랜덤 문제 세트 로드
+                    selectedProblems = getRandomProblems(3); // 새로운 랜덤 문제 선택
+                    currentProblemIndex = 0; // 문제 인덱스 초기화
+                    loadProblem(); // 첫 문제 로드
+                }
+            }
+        }
+
+        function showImage() {
+            document.getElementById('fullscreenImage').style.display = 'flex'; // 이미지 보이기
+        }
+
+        window.onload = function() {
+            selectedProblems = getRandomProblems(3); // 3개의 랜덤 문제 선택
+            loadProblem(); // 첫 문제 로드
+        };
+    </script>
+</body>
+</html>
