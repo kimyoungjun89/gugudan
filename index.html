@@ -119,7 +119,7 @@
     <button onclick="checkAnswer()">확인</button>
 
     <div id="fullscreenImage">
-        <img src="https://example.com/your-image.jpg" alt="Congratulations!" />
+        <img src="gugudan.jpg" alt="Congratulations!" />
         <button id="restartButton" onclick="restartGame()">처음으로</button>
     </div>
 
@@ -187,6 +187,10 @@
             document.getElementById('inputField').value = answer;
             currentProblem = loadProblem();
         }
+
+        window.onload = function() {
+            loadProblem();
+        };
     </script>
 </body>
 </html>
