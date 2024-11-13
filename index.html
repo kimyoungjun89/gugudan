@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>구구단 퀴즈</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        #problem {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        #inputField {
+            font-size: 24px;
+            width: 100px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            justify-content: center;
+            margin: auto;
+            max-width: 200px;
+        }
+
+        .number {
+            padding: 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .number:hover {
+            background-color: #0056b3;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        #fullscreenImage {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #fullscreenImage img {
+            max-width: 90%;
+            max-height: 80%;
+            margin-bottom: 20px;
+        }
+
+        #restartButton {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #restartButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>구구단 퀴즈</h1>
+    <div id="problem"></div>
+    <input type="text" id="inputField" readonly />
+    <div class="number-pad">
+        <div class="number" onclick="addNumber('1')">1</div>
+        <div class="number" onclick="addNumber('2')">2</div>
+        <div class="number" onclick="addNumber('3')">3</div>
+        <div class="number" onclick="addNumber('4')">4</div>
+        <div class="number" onclick="addNumber('5')">5</div>
+        <div class="number" onclick="addNumber('6')">6</div>
+        <div class="number" onclick="addNumber('7')">7</div>
+        <div class="number" onclick="addNumber('8')">8</div>
+        <div class="number" onclick="addNumber('9')">9</div>
+        <div class="number" onclick="addNumber('0')" style="grid-column: span 3;">0</div>
+    </div>
+    <button onclick="checkAnswer()">확인</button>
+
+    <div id="fullscreenImage">
+        <img src="https://example.com/your-image.jpg" alt="Congratulations!" />
+        <button id="restartButton" onclick="restartGame()">처음으로</button>
+    </div>
+
+    <script>
+        let answer = ''; 
+        const problems = [
+            { question: '3 x 2', answer: 6 },
+            { question: '4 x 5', answer: 20 },
+            { question: '7 x 3', answer: 21 },
+            { question: '5 x 6', answer: 30 },
+            { question: '9 x 1', answer: 9 },
+            { question: '2 x 8', answer: 16 },
+            { question: '1 x 7', answer: 7 },
+            { question: '6 x 4', answer: 24 },
+            { question: '8 x 3', answer: 24 },
+            { question: '2 x 9', answer: 18 }
+        ];
+
+        let currentProblemIndex = 0;
+        let correctAnswersCount = 0;
+
+        function getRandomProblem() {
+            return problems[Math.floor(Math.random() * problems.length)];
+        }
+
+        function loadProblem() {
+            const problemElement = document.getElementById('problem');
+            const currentProblem = getRandomProblem();
+            problemElement.textContent = currentProblem.question;
+            return currentProblem;
+        }
+
+        let currentProblem = loadProblem();
+
+        function addNumber(num) {
+            answer += num;
+            document.getElementById('inputField').value = answer;
+        }
+
+        function checkAnswer() {
+            if (parseInt(answer) === currentProblem.answer) {
+                correctAnswersCount++;
+                alert('정답입니다!');
+                if (correctAnswersCount >= 3) {
+                    showImage();
+                    return;
+                }
+            } else {
+                alert('틀렸습니다. 다시 시도하세요.');
+            }
+            
+            answer = '';
+            document.getElementById('inputField').value = answer;
+            currentProblem = loadProblem(); // Load a new problem after each answer
+        }
+
+        function showImage() {
+            document.getElementById('fullscreenImage').style.display = 'flex';
+        }
+
+        function restartGame() {
+            document.getElementById('fullscreenImage').style.display = 'none';
+            correctAnswersCount = 0;
+            answer = '';
+            document.getElementById('inputField').value = answer;
+            currentProblem = loadProblem();
+        }
+    </script>
+</body>
+</html>
